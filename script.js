@@ -26,6 +26,31 @@ const AVATARS = {
     [YOU]: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjwoCuvjtiZtk9oyH4N9FNO0Gd-7ni2BtStw&s"
 };
 
+// ============================================
+// ADDON 1: Random Funny Notifications
+// ============================================
+const RANDOM_NOTIFICATIONS = [
+    {icon:"🦉",app:"Duolingo",text:"You missed your Spanish lesson. I know where you live.",color:"#58cc02"},
+    {icon:"👤",app:"Your FBI Agent",text:"Bro I'm watching rn and even I think you should confess 👀",color:"#1a1a2e"},
+    {icon:"⚔️",app:"Clash of Clans",text:"Your village was raided for 420,069 gold",color:"#f5a623"},
+    {icon:"💼",app:"LinkedIn",text:"Someone viewed your profile! (it was your mom)",color:"#0a66c2"},
+    {icon:"🎮",app:"Steam",text:"GTA VI is 0.5% off! ($59.70)",color:"#1b2838"},
+    {icon:"📚",app:"Wikipedia",text:"Please donate. This is our 47th email today.",color:"#636466"},
+    {icon:"🍬",app:"Candy Crush",text:"Your mom just passed your highest level",color:"#ff6600"},
+    {icon:"🧮",app:"Calculator",text:"Even I can't calculate how down bad you are",color:"#333333"},
+    {icon:"🍔",app:"Uber Eats",text:"Your ex ordered from your favorite restaurant",color:"#06c167"},
+    {icon:"☁️",app:"iCloud",text:"Storage full. 99.7% memes, 0.3% regret",color:"#3693f3"},
+    {icon:"🎵",app:"Spotify",text:"Your 'crying in the shower' playlist was shared publicly",color:"#1db954"},
+    {icon:"📱",app:"Screen Time",text:"You've spent 14 hours on her profile this week",color:"#007aff"},
+    {icon:"🤖",app:"ChatGPT",text:"Even AI thinks you're overthinking this bro",color:"#10a37f"},
+    {icon:"📸",app:"Instagram",text:"You accidentally liked her photo from 2019",color:"#e1306c"},
+    {icon:"🐦",app:"Twitter/X",text:"Elon Musk renamed your feelings to 'X'",color:"#000000"},
+    {icon:"🎬",app:"Netflix",text:"Still watching? (your life fall apart)",color:"#e50914"},
+];
+let usedNotifications = [];
+let notifTimer = null;
+let notifMessageCount = 0;
+
 const CONVERSATION = [
     {type:"message",sender:N2,text:"yo guys i fucked up"},
     {type:"message",sender:N3,text:"what did you do this time"},
@@ -238,19 +263,110 @@ const CONVERSATION = [
 ];
 
 let currentIndex=0,messageTimeout,waitingForChoice=!1,currentHoveredMessage=null,playerName=N5;
-const lockScreen=document.getElementById("lockScreen"),instagramScreen=document.getElementById("instagramScreen"),chatMessages=document.getElementById("chatMessages"),choiceContainer=document.getElementById("choiceContainer"),choicesButtons=document.getElementById("choicesButtons"),emojiPopup=document.getElementById("emojiPopup"),headerIcon=document.getElementById("headerIcon"),notificationsContainer=document.getElementById("notificationsContainer"),finalModal=document.getElementById("finalModal"),finalYesBtn=document.getElementById("finalYesBtn"),finalNoBtn=document.getElementById("finalNoBtn"),secondChanceModal=document.getElementById("secondChanceModal"),secondYesBtn=document.getElementById("secondYesBtn"),secondNoBtn=document.getElementById("secondNoBtn"),speedBtn=document.getElementById("speedBtn");
+let noDodgeCount=0,noSecondDodgeCount=0;
+const lockScreen=document.getElementById("lockScreen"),instagramScreen=document.getElementById("instagramScreen"),chatMessages=document.getElementById("chatMessages"),choiceContainer=document.getElementById("choiceContainer"),choicesButtons=document.getElementById("choicesButtons"),emojiPopup=document.getElementById("emojiPopup"),headerIcon=document.getElementById("headerIcon"),notificationsContainer=document.getElementById("notificationsContainer"),finalModal=document.getElementById("finalModal"),finalYesBtn=document.getElementById("finalYesBtn"),finalNoBtn=document.getElementById("finalNoBtn"),secondChanceModal=document.getElementById("secondChanceModal"),secondYesBtn=document.getElementById("secondYesBtn"),secondNoBtn=document.getElementById("secondNoBtn"),speedBtn=document.getElementById("speedBtn"),toastContainer=document.getElementById("toastNotifications"),bsodScreen=document.getElementById("bsodScreen"),celebrationOverlay=document.getElementById("celebrationOverlay"),celebrationHearts=document.getElementById("celebrationHearts"),noEndingScreen=document.getElementById("noEndingScreen"),noEndingName=document.getElementById("noEndingName"),fCounter=document.getElementById("fCounter"),bsodPercent=document.getElementById("bsodPercent");
 
 function init(){setupEventListeners(),showNotifications()}
 
-function setupEventListeners(){lockScreen.addEventListener("click",unlockPhone),setupEmojiReactions(),finalYesBtn.addEventListener("click",()=>handleFinalAnswer(!0)),finalNoBtn.addEventListener("click",()=>showSecondChance()),secondYesBtn.addEventListener("click",()=>handleFinalAnswer(!0)),secondNoBtn.addEventListener("click",()=>handleFinalAnswer(!1)),speedBtn.addEventListener("click",toggleSpeed)}
+function setupEventListeners(){lockScreen.addEventListener("click",unlockPhone),setupEmojiReactions(),finalYesBtn.addEventListener("click",()=>handleFinalAnswer(!0)),finalNoBtn.addEventListener("click",e=>{e.stopPropagation();if(noDodgeCount<6)return;showSecondChance()}),secondYesBtn.addEventListener("click",()=>handleFinalAnswer(!0)),secondNoBtn.addEventListener("click",e=>{e.stopPropagation();if(noSecondDodgeCount<4)return;handleFinalAnswer(!1)}),speedBtn.addEventListener("click",toggleSpeed),setupNoDodge(finalNoBtn,"noDodgeCount"),setupNoDodge(secondNoBtn,"noSecondDodgeCount")}
 
 function toggleSpeed(){if(speedMultiplier===1){speedMultiplier=5;MESSAGE_DELAY=BASE_MESSAGE_DELAY/5;TYPING_DURATION=BASE_TYPING_DURATION/5;speedBtn.textContent="x5";speedBtn.classList.add("active")}else{speedMultiplier=1;MESSAGE_DELAY=BASE_MESSAGE_DELAY;TYPING_DURATION=BASE_TYPING_DURATION;speedBtn.textContent="x1";speedBtn.classList.remove("active")}}
+
+// ============================================
+// ADDON 1: Random Toast Notifications System
+// ============================================
+function showRandomToast(){
+    if(usedNotifications.length>=RANDOM_NOTIFICATIONS.length){usedNotifications=[];}
+    let available=RANDOM_NOTIFICATIONS.filter((_,i)=>!usedNotifications.includes(i));
+    let idx=RANDOM_NOTIFICATIONS.indexOf(available[Math.floor(Math.random()*available.length)]);
+    usedNotifications.push(idx);
+    const n=RANDOM_NOTIFICATIONS[idx];
+    const toast=document.createElement("div");
+    toast.className="toast-notif";
+    toast.innerHTML=`<div class="toast-icon" style="background:${n.color}">${n.icon}</div><div class="toast-info"><div class="toast-app">${n.app}</div><div class="toast-text">${escapeHtml(n.text)}</div></div><div class="toast-time">now</div>`;
+    toastContainer.appendChild(toast);
+    setTimeout(()=>{if(toast.parentNode)toast.remove()},4200);
+}
+
+function maybeShowToast(){
+    notifMessageCount++;
+    // Show a toast roughly every 12-20 messages, starting after message 8
+    if(notifMessageCount>8&&notifMessageCount%Math.floor(Math.random()*9+12)===0){
+        showRandomToast();
+    }
+}
+
+// Force show a toast at certain story beats (random funny moments)
+const TOAST_TRIGGER_INDICES=[12,30,55,75,100,130,165,195,220];
+
+// ============================================
+// ADDON 2: NO Button Dodge Mechanics
+// ============================================
+const NO_DODGE_TEXTS=["NO","no?","you sure?","try again lol","can't catch me","nice try 💀","stop it","LMAO","🏃‍♂️💨","nope","hehe"];
+
+function setupNoDodge(btn,counterVar){
+    function dodge(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(counterVar==="noDodgeCount"){
+            noDodgeCount++;
+            if(noDodgeCount>=6){btn.style.position="";btn.style.transform="";btn.style.left="";btn.style.top="";return;}
+            dodgeButton(btn,finalModal.querySelector(".final-modal-content"),noDodgeCount);
+            // Make YES button grow
+            if(noDodgeCount>=3){
+                finalYesBtn.style.fontSize=(18+noDodgeCount*3)+"px";
+                finalYesBtn.style.padding=(16+noDodgeCount*4)+"px "+(32+noDodgeCount*6)+"px";
+                finalYesBtn.classList.add("growing");
+            }
+        }else{
+            noSecondDodgeCount++;
+            if(noSecondDodgeCount>=4){btn.style.position="";btn.style.transform="";btn.style.left="";btn.style.top="";return;}
+            dodgeButton(btn,secondChanceModal.querySelector(".final-modal-content"),noSecondDodgeCount);
+            if(noSecondDodgeCount>=2){
+                secondYesBtn.style.fontSize=(18+noSecondDodgeCount*4)+"px";
+                secondYesBtn.style.padding=(16+noSecondDodgeCount*5)+"px "+(32+noSecondDodgeCount*8)+"px";
+            }
+        }
+    }
+    btn.addEventListener("mouseover",dodge);
+    btn.addEventListener("touchstart",dodge,{passive:false});
+}
+
+function dodgeButton(btn,container,count){
+    const rect=container.getBoundingClientRect();
+    const btnW=btn.offsetWidth;
+    const btnH=btn.offsetHeight;
+    const maxX=rect.width-btnW-20;
+    const maxY=rect.height-btnH-20;
+    const randX=Math.random()*maxX+10;
+    const randY=Math.random()*maxY+10;
+    btn.style.position="absolute";
+    btn.style.left=randX+"px";
+    btn.style.top=randY+"px";
+    btn.style.transition="all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    // Change text randomly
+    if(count>1){
+        btn.textContent=NO_DODGE_TEXTS[Math.min(count,NO_DODGE_TEXTS.length-1)];
+    }
+    // Shrink the NO button over time
+    const scale=Math.max(0.5,1-count*0.08);
+    btn.style.transform=`scale(${scale})`;
+    // Add dodge counter text
+    let counterEl=container.querySelector(".dodge-counter");
+    if(!counterEl){
+        counterEl=document.createElement("div");
+        counterEl.className="dodge-counter";
+        container.appendChild(counterEl);
+    }
+    const dodgeMessages=["","nice try","you really trying?","getting closer... not","bruh 💀","okay okay fine","ALRIGHT you win","...seriously?","I respect the dedication"];
+    counterEl.textContent=dodgeMessages[Math.min(count,dodgeMessages.length-1)];
+}
 
 function showNotifications(){const e=document.createElement("div");e.className="notification",e.innerHTML='<div class="notif-header"><div class="notif-icon" style="background: #ff9000; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎥</div><div class="notif-info"><div class="notif-title">Pornhub</div><div class="notif-preview">Thanks for your $1,000,000 donation to gatouz!</div></div><span class="notif-time">now</span></div>';const t=document.createElement("div");t.className="notification",t.innerHTML=`<div class="notif-header"><img src="group-pic.jpg" alt="Group" class="notif-icon" onerror="this.style.background='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2748%27 height=%2748%27%3E%3Crect fill=%27%23667eea%27 width=%2748%27 height=%2748%27/%3E%3C/svg%3E';"><div class="notif-info"><div class="notif-title">bzezel sahli</div><div class="notif-preview">${N1} added you</div></div><span class="notif-time">now</span></div>`,notificationsContainer.appendChild(e),notificationsContainer.appendChild(t),setTimeout(unlockPhone,4e3)}
 
 function unlockPhone(){lockScreen.classList.contains("unlocking")||(lockScreen.classList.add("unlocking"),setTimeout(()=>{lockScreen.style.display="none",instagramScreen.classList.add("active"),headerIcon.src="group-pic.jpg",headerIcon.onerror=()=>{headerIcon.style.background="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"},setTimeout(processNext,1800)},600))}
 
-function processNext(){if(currentIndex>=CONVERSATION.length)return;const e=CONVERSATION[currentIndex];"message"===e.type?(showTypingIndicator(e.sender),setTimeout(()=>{hideTypingIndicator(),addMessage(e.sender,e.text),currentIndex++,waitingForChoice||(messageTimeout=setTimeout(processNext,MESSAGE_DELAY))},TYPING_DURATION)):"choice"===e.type?(waitingForChoice=!0,showChoices(e.options)):"final_question"===e.type&&showFinalQuestion()}
+function processNext(){if(currentIndex>=CONVERSATION.length)return;const e=CONVERSATION[currentIndex];"message"===e.type?(showTypingIndicator(e.sender),setTimeout(()=>{hideTypingIndicator(),addMessage(e.sender,e.text),maybeShowToast(),TOAST_TRIGGER_INDICES.includes(currentIndex)&&showRandomToast(),currentIndex++,waitingForChoice||(messageTimeout=setTimeout(processNext,MESSAGE_DELAY))},TYPING_DURATION)):"choice"===e.type?(waitingForChoice=!0,showChoices(e.options)):"final_question"===e.type&&showFinalQuestion()}
 
 function showTypingIndicator(e){const t=document.createElement("div");t.className="message-wrapper typing-wrapper",t.innerHTML=`<img src="${AVATARS[e]}" alt="${e}" class="message-avatar"><div class="message-content"><div class="message-bubble typing"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`,chatMessages.appendChild(t),scrollToBottom()}
 
@@ -276,13 +392,191 @@ function addReactionToMessage(e){if(!currentHoveredMessage)return;const t=curren
 
 function showFinalQuestion(){finalModal.classList.add("active")}
 
-function showSecondChance(){finalModal.classList.remove("active"),setTimeout(()=>{secondChanceModal.classList.add("active")},300)}
+function showSecondChance(){
+    finalModal.classList.remove("active");
+    noSecondDodgeCount=0;
+    setTimeout(()=>{
+        const noBtn=secondChanceModal.querySelector(".no-btn-small");
+        noBtn.textContent="No, I meant no";
+        noBtn.style="";
+        secondYesBtn.style="";
+        const oldCounter=secondChanceModal.querySelector(".dodge-counter");
+        if(oldCounter)oldCounter.remove();
+        secondChanceModal.classList.add("active");
+    },300);
+}
 
-function handleFinalAnswer(e){finalModal.classList.remove("active"),secondChanceModal.classList.remove("active"),setTimeout(()=>{e?showYesEnding():showNoEnding()},500)}
+function handleFinalAnswer(e){
+    finalModal.classList.remove("active");
+    secondChanceModal.classList.remove("active");
+    setTimeout(()=>{e?showYesEnding():showNoEnding()},500);
+}
 
-function showYesEnding(){const e=[{sender:YOU,text:"YOOOOOOOOOO"},{sender:N4,text:"LETS FUCKING GOOOOOOO"},{sender:YOU,text:"i can't believe this actually worked"},{sender:YOU,text:`thank you ${HER_NAME}`},{sender:YOU,text:"you just made me the happiest guy alive"},{sender:YOU,text:"happy valentine's day ❤️"},{sender:YOU,text:"best valentine's day ever"}];let t=0;!function n(){if(t>=e.length)return void createConfetti();const s=e[t];showTypingIndicator(s.sender),setTimeout(()=>{hideTypingIndicator(),addMessage(s.sender,s.text),t++,setTimeout(n,MESSAGE_DELAY)},TYPING_DURATION)}()}
+// ============================================
+// YES ENDING: Full celebration mode
+// ============================================
+function showYesEnding(){
+    // Phase 1: Chat messages with screen effects
+    const msgs=[
+        {sender:N1,text:"YOOOOOOOOOO"},
+        {sender:N4,text:"LETS FUCKING GOOOOOOOOO"},
+        {sender:N2,text:"BRO WHAT"},
+        {sender:N3,text:"NO WAY NO WAY NO WAY"},
+        {sender:N2,text:"THE M&M TUBE GUY IS CRYING RN 😭"},
+        {sender:N1,text:"WE WITNESSED HISTORY"},
+        {sender:YOU,text:"i can't believe this actually worked"},
+        {sender:YOU,text:`${HER_NAME} you just made me the happiest guy alive`},
+        {sender:N4,text:"BRO IS FLOATING RN"},
+        {sender:N2,text:"someone screenshot this"},
+        {sender:YOU,text:"i love you"},
+        {sender:YOU,text:"happy valentine's day ❤️"},
+        {sender:N3,text:"WWWWWWWWWW"},
+        {sender:N1,text:"biggest W of 2026"},
+    ];
+    let i=0;
+    // Start confetti immediately
+    createConfetti();
+    // Screen shake
+    document.querySelector(".phone-container").classList.add("screen-shake");
+    setTimeout(()=>document.querySelector(".phone-container").classList.remove("screen-shake"),600);
+    // Show a toast
+    showRandomToast();
 
-function showNoEnding(){const e=[{sender:YOU,text:"oh"},{sender:N1,text:"..."},{sender:N4,text:"..."},{sender:N3,text:"..."},{sender:N2,text:"F in the chat"},{sender:YOU,text:"no yeah that's"},{sender:YOU,text:"that's totally cool"},{sender:N1,text:"bro you good?"},{sender:YOU,text:"yeah i'm good"},{sender:YOU,text:"at least i tried right"},{sender:N4,text:"you miss 100% of shots you don't take"},{sender:YOU,text:"happy valentine's day anyway"},{sender:YOU,text:"still friends? 🤝"}];let t=0;!function n(){if(t>=e.length)return;const s=e[t];showTypingIndicator(s.sender),setTimeout(()=>{hideTypingIndicator(),addMessage(s.sender,s.text),t++,setTimeout(n,MESSAGE_DELAY)},TYPING_DURATION)}()}
+    function playMsg(){
+        if(i>=msgs.length){
+            // Phase 2: Full screen celebration after messages
+            setTimeout(()=>{
+                createConfetti();
+                setTimeout(showCelebrationOverlay,800);
+            },1000);
+            return;
+        }
+        const m=msgs[i];
+        showTypingIndicator(m.sender);
+        setTimeout(()=>{
+            hideTypingIndicator();
+            addMessage(m.sender,m.text);
+            i++;
+            // Extra confetti bursts at certain messages
+            if(i===4||i===8||i===12)createConfetti();
+            // Screen shake on hype moments
+            if(i===1||i===6||i===11){
+                document.querySelector(".phone-container").classList.add("screen-shake");
+                setTimeout(()=>document.querySelector(".phone-container").classList.remove("screen-shake"),600);
+            }
+            setTimeout(playMsg,MESSAGE_DELAY);
+        },TYPING_DURATION);
+    }
+    playMsg();
+}
+
+function showCelebrationOverlay(){
+    celebrationOverlay.classList.add("active");
+    // Spawn floating hearts
+    const hearts=["❤️","💕","💖","💗","💘","💝","🥰","😍","✨","🎉"];
+    for(let i=0;i<40;i++){
+        setTimeout(()=>{
+            const heart=document.createElement("div");
+            heart.className="floating-heart";
+            heart.textContent=hearts[Math.floor(Math.random()*hearts.length)];
+            heart.style.left=Math.random()*100+"%";
+            heart.style.fontSize=(20+Math.random()*30)+"px";
+            heart.style.animationDuration=(3+Math.random()*3)+"s";
+            heart.style.animationDelay="0s";
+            celebrationHearts.appendChild(heart);
+            setTimeout(()=>heart.remove(),6000);
+        },i*200);
+    }
+    // Keep spawning confetti
+    let confettiRounds=0;
+    const confettiInterval=setInterval(()=>{
+        createConfetti();
+        confettiRounds++;
+        if(confettiRounds>5)clearInterval(confettiInterval);
+    },2000);
+}
+
+// ============================================
+// NO ENDING: BSOD + R.I.P. tombstone
+// ============================================
+function showNoEnding(){
+    // Phase 1: Brief chat reaction
+    const msgs=[
+        {sender:YOU,text:"oh"},
+        {sender:N1,text:"..."},
+        {sender:N4,text:"..."},
+        {sender:N2,text:"💀"},
+        {sender:N3,text:"F"},
+    ];
+    let i=0;
+    function playMsg(){
+        if(i>=msgs.length){
+            // Phase 2: Screen crack + BSOD
+            setTimeout(()=>{
+                // Add crack overlay
+                const crack=document.createElement("div");
+                crack.className="screen-crack";
+                document.body.appendChild(crack);
+                // Screen shake
+                document.querySelector(".phone-container").classList.add("screen-shake");
+                setTimeout(()=>{
+                    document.querySelector(".phone-container").classList.remove("screen-shake");
+                    // Phase 3: BSOD
+                    setTimeout(showBSOD,400);
+                },600);
+            },800);
+            return;
+        }
+        const m=msgs[i];
+        showTypingIndicator(m.sender);
+        setTimeout(()=>{
+            hideTypingIndicator();
+            addMessage(m.sender,m.text);
+            i++;
+            setTimeout(playMsg,MESSAGE_DELAY);
+        },TYPING_DURATION);
+    }
+    playMsg();
+}
+
+function showBSOD(){
+    bsodScreen.classList.add("active");
+    // Animate percentage
+    let pct=0;
+    const bsodInterval=setInterval(()=>{
+        pct+=Math.floor(Math.random()*8+1);
+        if(pct>100)pct=100;
+        bsodPercent.textContent=pct;
+        if(pct>=100){
+            clearInterval(bsodInterval);
+            // After "collecting tears", show the tombstone screen
+            setTimeout(()=>{
+                bsodScreen.classList.remove("active");
+                showTombstone();
+            },1500);
+        }
+    },300);
+}
+
+function showTombstone(){
+    noEndingName.textContent=YOU+"'s chances";
+    noEndingScreen.classList.add("active");
+    // Press F to pay respects
+    let fCount=0;
+    const fTexts=[];
+    function handleF(e){
+        if(e.key==="f"||e.key==="F"||e.type==="click"){
+            fCount++;
+            fTexts.push("F");
+            fCounter.textContent=fTexts.join(" ");
+            if(fCount>=10){
+                fCounter.textContent=fTexts.join(" ")+" ... enough Fs bro 💀";
+            }
+        }
+    }
+    document.addEventListener("keydown",handleF);
+    noEndingScreen.addEventListener("click",handleF);
+}
 
 function createConfetti(){const e=["#ff6b6b","#ee5a6f","#f06595","#cc5de8","#845ef7","#5c7cfa","#339af0"];for(let t=0;t<100;t++)setTimeout(()=>{const t=document.createElement("div");t.className="confetti",t.style.left=Math.random()*window.innerWidth+"px",t.style.top="-10px",t.style.background=e[Math.floor(Math.random()*e.length)],t.style.width=Math.random()*10+5+"px",t.style.height=Math.random()*10+5+"px",t.style.borderRadius=Math.random()>.5?"50%":"0",document.body.appendChild(t),setTimeout(()=>t.remove(),3e3)},30*t)}
 
