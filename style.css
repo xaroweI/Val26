@@ -671,6 +671,500 @@ body {
     z-index: 10001;
 }
 
+/* ============================================ */
+/* ADDON 1: Random Toast Notifications          */
+/* ============================================ */
+.toast-notifications {
+    position: absolute;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 380px;
+    z-index: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.toast-notif {
+    background: rgba(28, 28, 30, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: toastIn 0.4s ease, toastOut 0.4s ease 3.6s forwards;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.toast-notif:active {
+    transform: scale(0.98);
+}
+
+.toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.toast-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.toast-app {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.toast-text {
+    color: white;
+    font-size: 14px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.toast-time {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes toastOut {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+}
+
+/* ============================================ */
+/* ADDON 2: Enhanced Endings                    */
+/* ============================================ */
+
+/* Screen Shake */
+@keyframes screenShake {
+    0%, 100% { transform: translateX(0); }
+    10% { transform: translateX(-8px) rotate(-1deg); }
+    20% { transform: translateX(8px) rotate(1deg); }
+    30% { transform: translateX(-6px) rotate(-0.5deg); }
+    40% { transform: translateX(6px) rotate(0.5deg); }
+    50% { transform: translateX(-4px); }
+    60% { transform: translateX(4px); }
+    70% { transform: translateX(-2px); }
+    80% { transform: translateX(2px); }
+}
+
+.screen-shake {
+    animation: screenShake 0.6s ease;
+}
+
+/* NO Button Dodge */
+.final-btn.dodging {
+    position: absolute;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+}
+
+.final-btn.growing {
+    animation: growPulse 0.3s ease forwards;
+}
+
+@keyframes growPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1.1); }
+}
+
+.final-modal-content {
+    position: relative;
+    overflow: visible;
+    min-height: 200px;
+}
+
+.dodge-counter {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 12px;
+    margin-top: 12px;
+    text-align: center;
+    min-height: 18px;
+}
+
+/* BSOD Screen */
+.bsod-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0078d7;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 40px;
+}
+
+.bsod-screen.active {
+    display: flex;
+    animation: bsodFlicker 0.15s ease;
+}
+
+@keyframes bsodFlicker {
+    0% { opacity: 0; }
+    30% { opacity: 1; }
+    50% { opacity: 0.8; }
+    70% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+.bsod-content {
+    max-width: 600px;
+    color: white;
+}
+
+.bsod-sad {
+    font-size: 120px;
+    font-weight: 200;
+    margin-bottom: 20px;
+}
+
+.bsod-title {
+    font-size: 28px;
+    font-weight: 400;
+    margin-bottom: 16px;
+}
+
+.bsod-text {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    opacity: 0.9;
+}
+
+.bsod-error {
+    font-size: 14px;
+    opacity: 0.7;
+    margin-bottom: 24px;
+    font-family: 'Courier New', monospace;
+}
+
+.bsod-progress-text {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-bottom: 24px;
+}
+
+.bsod-small {
+    font-size: 12px;
+    opacity: 0.6;
+    line-height: 1.6;
+}
+
+/* Celebration Overlay (YES Ending) */
+.celebration-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #f093fb, #f5576c);
+    background-size: 400% 400%;
+    animation: celebrationGradient 3s ease infinite;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    flex-direction: column;
+}
+
+.celebration-overlay.active {
+    display: flex;
+    animation: celebrationIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), celebrationGradient 3s ease infinite;
+}
+
+@keyframes celebrationGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes celebrationIn {
+    from {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.celebration-content {
+    text-align: center;
+    z-index: 2;
+    padding: 20px;
+}
+
+.celebration-emoji {
+    font-size: 80px;
+    animation: celebEmoji 1s ease infinite alternate;
+    margin-bottom: 10px;
+}
+
+@keyframes celebEmoji {
+    from { transform: scale(1) rotate(-5deg); }
+    to { transform: scale(1.2) rotate(5deg); }
+}
+
+.celebration-title {
+    font-size: 42px;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    margin-bottom: 8px;
+    letter-spacing: 3px;
+    animation: titleBounce 0.6s ease infinite alternate;
+}
+
+@keyframes titleBounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-8px); }
+}
+
+.celebration-subtitle {
+    font-size: 18px;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 30px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.achievement-popup {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 16px 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    animation: achievementPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s both;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+@keyframes achievementPop {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.achievement-icon {
+    font-size: 36px;
+}
+
+.achievement-text {
+    text-align: left;
+}
+
+.achievement-title {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.achievement-desc {
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.celebration-hearts {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.floating-heart {
+    position: absolute;
+    bottom: -50px;
+    font-size: 30px;
+    animation: floatHeart 4s ease-in-out forwards;
+    opacity: 0;
+}
+
+@keyframes floatHeart {
+    0% {
+        opacity: 0;
+        transform: translateY(0) rotate(0deg) scale(0.5);
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-100vh) rotate(360deg) scale(1.5);
+    }
+}
+
+/* NO Ending R.I.P. Screen */
+.no-ending-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0a0a0a;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+
+.no-ending-screen.active {
+    display: flex;
+    animation: fadeIn 1s ease;
+}
+
+.no-ending-content {
+    text-align: center;
+    padding: 40px;
+}
+
+.no-ending-rip {
+    font-size: 64px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 16px;
+    letter-spacing: 20px;
+    animation: ripFade 2s ease infinite alternate;
+}
+
+@keyframes ripFade {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+}
+
+.no-ending-name {
+    font-size: 28px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.no-ending-dates {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 24px;
+}
+
+.no-ending-epitaph {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    margin-bottom: 32px;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+.no-ending-flowers {
+    font-size: 48px;
+    margin-bottom: 32px;
+}
+
+.no-ending-f {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    animation: pulse 2s infinite;
+    margin-bottom: 12px;
+}
+
+.f-counter {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 20px;
+    letter-spacing: 4px;
+    min-height: 28px;
+}
+
+/* Screen crack effect */
+.screen-crack {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99998;
+    pointer-events: none;
+    background: radial-gradient(circle at center, transparent 0%, transparent 30%, rgba(0,0,0,0.3) 100%);
+}
+
+.screen-crack::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translate(-50%, -50%) rotate(15deg);
+}
+
+.screen-crack::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 80%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%) rotate(-25deg);
+}
+
 /* Desktop Styles */
 @media (min-width: 768px) {
     body {

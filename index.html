@@ -78,6 +78,9 @@
                 </div>
             </div>
 
+            <!-- Random Toast Notifications -->
+            <div class="toast-notifications" id="toastNotifications"></div>
+
             <div class="chat-messages" id="chatMessages">
                 <!-- Messages will be inserted here -->
             </div>
@@ -141,6 +144,50 @@
                 <button class="final-btn yes-btn" id="secondYesBtn">Actually... YES ❤️</button>
                 <button class="final-btn no-btn-small" id="secondNoBtn">No, I meant no</button>
             </div>
+        </div>
+    </div>
+
+    <!-- BSOD Crash Screen (NO ending) -->
+    <div class="bsod-screen" id="bsodScreen">
+        <div class="bsod-content">
+            <div class="bsod-sad">:(</div>
+            <div class="bsod-title">EMOTIONAL_DAMAGE.exe</div>
+            <div class="bsod-text">Your heart ran into a problem and needs to restart. We're just collecting some tears, and then we'll restart for you.</div>
+            <div class="bsod-error">Error Code: 0x0000DEAD</div>
+            <div class="bsod-progress">
+                <div class="bsod-progress-text">Collecting tears: <span id="bsodPercent">0</span>% complete</div>
+            </div>
+            <div class="bsod-small">If you call someone who cares, tell them this info:<br>Stop code: VALENTINE_REJECTED</div>
+        </div>
+    </div>
+
+    <!-- Celebration Overlay (YES ending) -->
+    <div class="celebration-overlay" id="celebrationOverlay">
+        <div class="celebration-content">
+            <div class="celebration-emoji">🎉</div>
+            <div class="celebration-title">MISSION ACCOMPLISHED</div>
+            <div class="celebration-subtitle">Operation Valentine: SUCCESS</div>
+            <div class="achievement-popup">
+                <div class="achievement-icon">🏆</div>
+                <div class="achievement-text">
+                    <div class="achievement-title">Achievement Unlocked</div>
+                    <div class="achievement-desc">Got a Valentine!</div>
+                </div>
+            </div>
+        </div>
+        <div class="celebration-hearts" id="celebrationHearts"></div>
+    </div>
+
+    <!-- Dramatic NO Ending Screen -->
+    <div class="no-ending-screen" id="noEndingScreen">
+        <div class="no-ending-content">
+            <div class="no-ending-rip">R.I.P.</div>
+            <div class="no-ending-name" id="noEndingName"></div>
+            <div class="no-ending-dates">2026 - 2026</div>
+            <div class="no-ending-epitaph">"He shot his shot. It missed. By a lot."</div>
+            <div class="no-ending-flowers">🪦 💐</div>
+            <div class="no-ending-f">Press F to pay respects</div>
+            <div class="f-counter" id="fCounter"></div>
         </div>
     </div>
 
